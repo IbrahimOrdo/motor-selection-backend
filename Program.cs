@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.OpenApi.Models;
+using Serilog.Sinks.Elasticsearch;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,11 +20,21 @@ builder.Services.Configure<JsonOptions>(options =>
 });
 
 
+// Serilog yapılandırması
 Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)  // appsettings.json'dan ayarları alır
+    .Enrich.FromLogContext()
     .WriteTo.Console()
-    .WriteTo.File("logs/app-log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("logs/app-log-.txt", rollingInterval: RollingInterval.Day) // Günlük log
+    .WriteTo.Seq("http://localhost:5341")  // Seq entegrasyonu
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+    {
+        AutoRegisterTemplate = true,
+        IndexFormat = "motor-selection-logs-{0:yyyy.MM.dd}"
+    })
     .CreateLogger();
-builder.Host.UseSerilog();
+
+builder.Host.UseSerilog(); // Serilog'u kullanmasını sağlıyoruz
 
 //builder.Services.AddDbContext<MotorDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -65,8 +76,20 @@ app.MapGet("/users", () => Results.Ok(users));
 
 app.MapGet("/users/{id}", (int id) =>
 {
-    var user = users.FirstOrDefault(u => u.Id == id);
-    return user != null ? Results.Ok(user) : Results.NotFound();
+    try
+    {
+        var user = users.FirstOrDefault(u => u.Id == id);
+        return user != null ? Results.Ok(user) : Results.NotFound();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu.");
+        
+        //context.Response.StatusCode = 500;
+        //await context.Response.WriteAsync("Internal Server Error");
+        return Results.NotFound();
+    }
+    
 });
 
 app.MapPost("/users", (User user) =>
@@ -110,6 +133,7 @@ app.MapGet("/motorcycles", () => Results.Ok(motorcycles));
 
 app.MapGet("/motorcycles/{id}", (int id) =>
 {
+    Log.Information("Log yazıldımı? Deneme!");
     var motorcycle = motorcycles.FirstOrDefault(m => m.Id == id);
     return motorcycle != null ? Results.Ok(motorcycle) : Results.NotFound();
 });
