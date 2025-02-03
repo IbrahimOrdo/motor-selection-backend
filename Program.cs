@@ -11,8 +11,20 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.OpenApi.Models;
 using Serilog.Sinks.Elasticsearch;
+using motor_selection_backend.Data;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Kültürü "en-US" olarak ayarla
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 builder.Services.Configure<JsonOptions>(options =>
 {
@@ -36,9 +48,14 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog(); // Serilog'u kullanmasını sağlıyoruz
 
-//builder.Services.AddDbContext<MotorDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+
+//builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -50,6 +67,16 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+// Kültür ayarlarını doğrula
+var supportedCultures = new[] { cultureInfo };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(cultureInfo),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
+
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>
@@ -107,7 +134,7 @@ app.MapPut("/users/{id}", (int id, User updatedUser) =>
         return Results.NotFound();
     }
 
-    user.Name = updatedUser.Name;
+    user.NameSurname = updatedUser.NameSurname;
     user.Age = updatedUser.Age;
     user.Weight = updatedUser.Weight;
     user.Height = updatedUser.Height;
