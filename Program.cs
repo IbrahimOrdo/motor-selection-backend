@@ -117,6 +117,7 @@ app.MapGet("/users", async (AppDbContext dbContext) =>
     }
     catch (Exception ex)
     {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
         return Results.StatusCode(500);
     }
 
@@ -132,7 +133,7 @@ app.MapGet("/users/{id}", async (int id, AppDbContext dbContext) =>
     }
     catch (Exception ex)
     {
-        //Log.Error(ex, "Beklenmeyen bir hata oluştu.");
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
         return Results.StatusCode(500);
     }
 });
@@ -140,38 +141,66 @@ app.MapGet("/users/{id}", async (int id, AppDbContext dbContext) =>
 
 app.MapPost("/users", (User user) =>
 {
-    user.Id = users.Any() ? users.Max(u => u.Id) + 1 : 1;
-    users.Add(user);
-    return Results.Created($"/users/{user.Id}", user);
+    try
+    {
+        user.Id = users.Any() ? users.Max(u => u.Id) + 1 : 1;
+        users.Add(user);
+        return Results.Created($"/users/{user.Id}", user);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+    
 });
 
 app.MapPut("/users/{id}", (int id, User updatedUser) =>
 {
-    var user = users.FirstOrDefault(u => u.Id == id);
-    if (user == null)
+    try
     {
-        return Results.NotFound();
+        var user = users.FirstOrDefault(u => u.Id == id);
+        if (user == null)
+        {
+            return Results.NotFound();
+        }
+
+        user.NameSurname = updatedUser.NameSurname;
+        user.Age = updatedUser.Age;
+        user.Weight = updatedUser.Weight;
+        user.Height = updatedUser.Height;
+        user.Occupation = updatedUser.Occupation;
+
+        return Results.NoContent();
     }
-
-    user.NameSurname = updatedUser.NameSurname;
-    user.Age = updatedUser.Age;
-    user.Weight = updatedUser.Weight;
-    user.Height = updatedUser.Height;
-    user.Occupation = updatedUser.Occupation;
-
-    return Results.NoContent();
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+    
 });
 
 app.MapDelete("/users/{id}", (int id) =>
 {
-    var user = users.FirstOrDefault(u => u.Id == id);
-    if (user == null)
+    try
     {
-        return Results.NotFound();
-    }
+        var user = users.FirstOrDefault(u => u.Id == id);
+        if (user == null)
+        {
+            return Results.NotFound();
+        }
 
-    users.Remove(user);
-    return Results.NoContent();
+        users.Remove(user);
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+   
 });
 
 // Motor CRUD Endpoint'leri
@@ -179,57 +208,103 @@ app.MapGet("/motorcycles", () => Results.Ok(motorcycles));
 
 app.MapGet("/motorcycles/{id}", (int id) =>
 {
-    Log.Information("Log yazıldımı? Deneme!");
-    var motorcycle = motorcycles.FirstOrDefault(m => m.Id == id);
-    return motorcycle != null ? Results.Ok(motorcycle) : Results.NotFound();
+    try
+    {
+        var motorcycle = motorcycles.FirstOrDefault(m => m.Id == id);
+        return motorcycle != null ? Results.Ok(motorcycle) : Results.NotFound();
+    }
+    catch (Exception ex)
+    {
+
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+    
 });
 
 app.MapPost("/motorcycles", (Motorcycle motorcycle) =>
 {
-    motorcycle.Id = motorcycles.Any() ? motorcycles.Max(m => m.Id) + 1 : 1;
-    motorcycles.Add(motorcycle);
-    return Results.Created($"/motorcycles/{motorcycle.Id}", motorcycle);
+    try
+    {
+        motorcycle.Id = motorcycles.Any() ? motorcycles.Max(m => m.Id) + 1 : 1;
+        motorcycles.Add(motorcycle);
+        return Results.Created($"/motorcycles/{motorcycle.Id}", motorcycle);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+    
 });
 
 app.MapPut("/motorcycles/{id}", (int id, Motorcycle updatedMotorcycle) =>
 {
-    var motorcycle = motorcycles.FirstOrDefault(m => m.Id == id);
-    if (motorcycle == null)
+    try
     {
-        return Results.NotFound();
+        var motorcycle = motorcycles.FirstOrDefault(m => m.Id == id);
+        if (motorcycle == null)
+        {
+            return Results.NotFound();
+        }
+
+        motorcycle.Model = updatedMotorcycle.Model;
+        motorcycle.Brand = updatedMotorcycle.Brand;
+        motorcycle.EngineSize = updatedMotorcycle.EngineSize;
+        motorcycle.SuitableFor = updatedMotorcycle.SuitableFor;
+
+        return Results.NoContent();
     }
-
-    motorcycle.Model = updatedMotorcycle.Model;
-    motorcycle.Brand = updatedMotorcycle.Brand;
-    motorcycle.EngineSize = updatedMotorcycle.EngineSize;
-    motorcycle.SuitableFor = updatedMotorcycle.SuitableFor;
-
-    return Results.NoContent();
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+    
 });
 
 app.MapDelete("/motorcycles/{id}", (int id) =>
 {
-    var motorcycle = motorcycles.FirstOrDefault(m => m.Id == id);
-    if (motorcycle == null)
+    try
     {
-        return Results.NotFound();
-    }
+        var motorcycle = motorcycles.FirstOrDefault(m => m.Id == id);
+        if (motorcycle == null)
+        {
+            return Results.NotFound();
+        }
 
-    motorcycles.Remove(motorcycle);
-    return Results.NoContent();
+        motorcycles.Remove(motorcycle);
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+    
 });
 
 // Kullanıcıya uygun motorları öneren endpoint
 app.MapGet("/recommendations/{userId}", (int userId) =>
 {
-    var user = users.FirstOrDefault(u => u.Id == userId);
-    if (user == null)
+    try
     {
-        return Results.NotFound();
-    }
+        var user = users.FirstOrDefault(u => u.Id == userId);
+        if (user == null)
+        {
+            return Results.NotFound();
+        }
 
-    var recommendations = motorcycles.Where(m => IsMotorcycleSuitableForUser(m, user)).ToList();
-    return Results.Ok(recommendations);
+        var recommendations = motorcycles.Where(m => IsMotorcycleSuitableForUser(m, user)).ToList();
+        return Results.Ok(recommendations);
+
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Beklenmeyen bir hata oluştu." + ex.Message);
+        return Results.StatusCode(500);
+    }
+    
 });
 
 bool IsMotorcycleSuitableForUser(Motorcycle motorcycle, User user)
