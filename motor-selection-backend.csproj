@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>motor_selection_backend</RootNamespace>
     <InvariantGlobalization>false</InvariantGlobalization>
-    <PublishAot>true</PublishAot>
+    <EnableInvariantGlobalization>false</EnableInvariantGlobalization>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>

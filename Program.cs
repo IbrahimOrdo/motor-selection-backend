@@ -51,9 +51,11 @@ builder.Host.UseSerilog(); // Serilog'u kullanmasını sağlıyoruz
 // Connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    options.UseSqlServer(connectionString)
+           .UseModel(MyMinimalApi.CompiledModels.AppDbContextModel.Instance);
+});
 
 //builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -67,6 +69,13 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+//// 📌 Migration işlemlerinin başarılı olup olmadığını kontrol etmek için
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    dbContext.Database.Migrate();   
+//}
 
 // Kültür ayarlarını doğrula
 var supportedCultures = new[] { cultureInfo };
@@ -99,25 +108,35 @@ var motorcycles = new List<Motorcycle>
 };
 
 // Kullanıcı CRUD Endpoint'leri
-app.MapGet("/users", () => Results.Ok(users));
-
-app.MapGet("/users/{id}", (int id) =>
+app.MapGet("/users", async (AppDbContext dbContext) =>
 {
     try
     {
-        var user = users.FirstOrDefault(u => u.Id == id);
+        var users = await dbContext.Users.ToListAsync();
+        return Results.Ok(users);
+    }
+    catch (Exception ex)
+    {
+        return Results.StatusCode(500);
+    }
+
+});
+
+
+app.MapGet("/users/{id}", async (int id, AppDbContext dbContext) =>
+{
+    try
+    {
+        var user = await dbContext.Users.FindAsync(id);
         return user != null ? Results.Ok(user) : Results.NotFound();
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "Beklenmeyen bir hata oluştu.");
-        
-        //context.Response.StatusCode = 500;
-        //await context.Response.WriteAsync("Internal Server Error");
-        return Results.NotFound();
+        //Log.Error(ex, "Beklenmeyen bir hata oluştu.");
+        return Results.StatusCode(500);
     }
-    
 });
+
 
 app.MapPost("/users", (User user) =>
 {

@@ -83,25 +83,6 @@ namespace motor_selection_backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Age = 30,
-                            AnnualIncome = 50000m,
-                            FuelType = "Hybrid",
-                            Gender = "Male",
-                            HasPurchasedVehicle = true,
-                            Height = 180.5,
-                            MaritalStatus = "Single",
-                            NameSurname = "John Doe",
-                            Occupation = "Engineer",
-                            PreferredVehicleType = "SUV",
-                            VehiclePurchaseYear = 2022,
-                            WeeklyTravelDistance = 200,
-                            Weight = 75.299999999999997
-                        });
                 });
 #pragma warning restore 612, 618
         }

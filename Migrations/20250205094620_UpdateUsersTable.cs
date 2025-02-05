@@ -5,7 +5,7 @@
 namespace motor_selection_backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class UpdateUsersTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,11 +34,6 @@ namespace motor_selection_backend.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "Age", "AnnualIncome", "FuelType", "Gender", "HasPurchasedVehicle", "Height", "MaritalStatus", "NameSurname", "Occupation", "PreferredVehicleType", "VehiclePurchaseYear", "WeeklyTravelDistance", "Weight" },
-                values: new object[] { 1, 30, 50000m, "Hybrid", "Male", true, 180.5, "Single", "John Doe", "Engineer", "SUV", 2022, 200, 75.299999999999997 });
         }
 
         /// <inheritdoc />

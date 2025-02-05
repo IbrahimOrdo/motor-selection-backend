@@ -11,8 +11,8 @@ using motor_selection_backend.Data;
 namespace motor_selection_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250203193808_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250205094620_UpdateUsersTable")]
+    partial class UpdateUsersTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -86,25 +86,6 @@ namespace motor_selection_backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Age = 30,
-                            AnnualIncome = 50000m,
-                            FuelType = "Hybrid",
-                            Gender = "Male",
-                            HasPurchasedVehicle = true,
-                            Height = 180.5,
-                            MaritalStatus = "Single",
-                            NameSurname = "John Doe",
-                            Occupation = "Engineer",
-                            PreferredVehicleType = "SUV",
-                            VehiclePurchaseYear = 2022,
-                            WeeklyTravelDistance = 200,
-                            Weight = 75.299999999999997
-                        });
                 });
 #pragma warning restore 612, 618
         }
