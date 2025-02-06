@@ -38,6 +38,7 @@ builder.Configuration
 
 // 📌 Configuration'ı bir değişkene alalım
 var configuration = builder.Configuration;
+builder.Services.AddSingleton<IConfiguration>(configuration);
 
 
 // Serilog yapılandırması
@@ -116,10 +117,12 @@ var motorcycles = new List<Motorcycle>
 };
 
 // Kullanıcı CRUD Endpoint'leri
-app.MapGet("/users", async (AppDbContext dbContext) =>
+app.MapGet("/users", async (AppDbContext dbContext, IConfiguration config) =>
 {
     try
     {
+        // Örnek teşkil etmesi adına.
+        var apiBaseUrl = config["AppSettings:ApiBaseUrl"];
         var users = await dbContext.Users.ToListAsync();
         return Results.Ok(users);
     }
