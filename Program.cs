@@ -31,6 +31,14 @@ builder.Services.Configure<JsonOptions>(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, JsonContext.Default);
 });
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+// 📌 Configuration'ı bir değişkene alalım
+var configuration = builder.Configuration;
+
 
 // Serilog yapılandırması
 Log.Logger = new LoggerConfiguration()
@@ -48,7 +56,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog(); // Serilog'u kullanmasını sağlıyoruz
 
-// Connection string
+// Connection string 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
